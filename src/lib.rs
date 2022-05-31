@@ -4,9 +4,17 @@ use near_sdk::{env, near_bindgen};
 near_sdk::setup_alloc!();
 
 #[near_bindgen]
-#[derive(Default, BorshDeserialize, BorshSerialize)]
+#[derive(BorshDeserialize, BorshSerialize)]
 pub struct HelloWorld {
     name: String
+}
+
+impl Default for HelloWorld {
+    fn default() -> Self {
+        Self {
+            name: "World".to_string()
+        }
+    }
 }
 
 #[near_bindgen]
@@ -16,7 +24,8 @@ impl HelloWorld {
         return format!("Hello {}!", self.name);
     }
 
-    pub fn set_name(&mut self, name: &String) {
+    pub fn set_name(&mut self, name: String) {
+        env::log(format!("Name to set: {}", name).as_bytes());
         self.name = name.to_string();
         env::log(format!("Name has now been set to {}", self.name).as_bytes());
     }
@@ -55,15 +64,13 @@ mod tests {
         // Given
         let context = get_context(vec![], false);
         testing_env!(context);
-
-        let test_name: String = String::from("Alice");
         let mut hello_world = HelloWorld { name: "".to_string() };
 
         // When
-        hello_world.set_name(&test_name);
+        hello_world.set_name("Alice".to_string());
 
         // Then
-        let expected_message: String = format!("Hello {}!", test_name);
+        let expected_message: String = format!("Hello {}!", "Alice".to_string());
         assert_eq!(expected_message, hello_world.get_message());
     }
 }
